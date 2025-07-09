@@ -1,0 +1,82 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+const resources = {
+    tr: {
+        translation: {
+            welcome: "Hoşgeldiniz",
+            login: "Giriş Yap",
+            logout: "Çıkış Yap",
+            cart: "Sepet",
+            favorites: "Favorilerim",
+            products: "Ürünler",
+            product: "Ürün",
+            price: "Fiyat",
+            quantity: "Adet",
+            orders: "Siparişlerim",
+            username: "Kullanıcı Adı",
+            pleaseEnterUsername: "Lütfen kullanıcı adınızı giriniz.",
+            no_favorites: "Henüz favori ürününüz yok.",
+            add_to_cart: "Sepete Ekle",
+            purchase_success: "Satın alma işlemi başarılı bir şekilde gerçekleştirildi.",
+            no_orders: "Henüz siparişiniz yok.",
+            order: "Sipariş",
+            date: "Tarih",
+            total: "Toplam",
+            purchase: "Satın Al",
+            clear_cart: "Sepeti Temizle",
+            page_not_found: "Sayfa Bulunamadı",
+            page_not_found_description: "Aradığınız sayfa mevcut değil veya taşınmış olabilir.",
+            home: "Ana Sayfa",
+            back: "Geri Dön",   
+            no_favorites_products: "Henüz favori ürününüz yok. Ürünleri beğenmeye başlayın!",
+            login_to_e_shop: "E-SHOP'a giriş yapın",
+            login_to_e_shop_description: "Herhangi bir kullanıcı adı ile giriş yapabilirsiniz",
+            e_shop: "E-MARKET",
+        },
+    },
+    en: {
+        translation: {
+            welcome: "Welcome",
+            login: "Login",
+            logout: "Logout",
+            cart: "Cart",
+            favorites: "Favorites",
+            products: "Products",  
+            product: "Product",
+            price: "Price",
+            quantity: "Quantity",
+            orders: "Orders",
+            username: "Username",
+            pleaseEnterUsername: "Please enter your username.",
+            no_favorites: "You have no favorite products yet.",
+            add_to_cart: "Add to Cart",
+            purchase_success: "Purchase successful.",
+            no_orders: "You have no orders yet.",
+            order: "Order",
+            date: "Date",
+            total: "Total",
+            purchase: "Purchase",
+            clear_cart: "Clear Cart",
+            page_not_found: "Page Not Found",
+            page_not_found_description: "The page you are looking for does not exist or has been moved.",
+            home: "Home",
+            back: "Back",
+            no_favorites_products: "You have no favorite products yet. Start liking products!",
+            login_to_e_shop: "Login to E-SHOP",
+            login_to_e_shop_description: "You can login with any username",
+            e_shop: "E-SHOP",
+        },
+    },
+};
+
+i18n.use(initReactI18next).init({
+    resources,
+    lng: "tr",
+    fallbackLng: "tr",
+    interpolation: {
+        escapeValue: false,
+    },
+});
+
+export default i18n;
