@@ -1,0 +1,42 @@
+# Node modules (hem backend hem frontend için)
+**/node_modules/
+
+# Build klasörleri (React / Vite / Webpack çıktı dosyaları)
+**/dist/
+**/build/
+
+# .env dosyaları (gizli anahtarlar)
+*.env
+*.env.local
+*.env.development
+*.env.production
+*.env.test
+
+# log dosyaları
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE ve sistem dosyaları
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# MacOS için
+__MACOSX/
+
+# coverage (test çıktı dosyaları)
+coverage/
+
+# eslint/tslint geçici dosyaları
+.eslintcache
+.tslintcache
+
+# misc
+*.tgz
+*.zip
+
+# local debug verisi (örneğin VSCode launch ayarları)
+*.launch.json
