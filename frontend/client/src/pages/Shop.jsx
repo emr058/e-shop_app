@@ -13,11 +13,11 @@ export default function Shop() {
         });
     }, []);
     return (
-        <Container maxWidth="2xl" sx={{ py: 4 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
           <Typography variant="h4" gutterBottom sx={{ mb: 2 }}>{t("products")}</Typography>
             <Grid container spacing={3}>
             {products.map((product) => (
-              <Grid item xs={12} sm={6} md={4} key={product.id}>
+              <Grid size={{xs: 12, sm: 6, md: 4}} key={product.id}>
                 <ProductCard product={product} />
               </Grid>
             ))}

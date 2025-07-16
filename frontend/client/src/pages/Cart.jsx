@@ -4,6 +4,7 @@ import { Add, Remove, Delete } from "@mui/icons-material";
 import { useCart } from '../context/CartContext';
 import { usePurchase } from '../context/PurchaseContext';
 import { useState } from 'react';
+import { Link } from "react-router-dom";
 
 export default function Cart() {
     const { t } = useTranslation();
@@ -11,20 +12,21 @@ export default function Cart() {
     const { addOrder } = usePurchase();
     const [showSuccess, setShowSuccess] = useState(false);
 
-    const handlePurchase = () => {
+    const handlePurchase = async () => {
         if (cartItems.length === 0) return; 
         addOrder(cartItems);
-        clearCart();
+        await clearCart();
         setShowSuccess(true);
         setTimeout(() => {
             setShowSuccess(false);
         }, 3000);
     };
 
-    const handleClearCart = () => {
-        clearCart();
+    const handleClearCart = async () => {
+        await clearCart();
     };
 
+    
     return (
         <>
             {showSuccess && (
@@ -35,6 +37,11 @@ export default function Cart() {
             
             <Container maxWidth="lg" sx={{ py: 4 }}>
                 <Typography variant="h4" gutterBottom sx={{ mb: 2 }}>{t("cart")}</Typography>
+                {cartItems.length === 0 && (
+                    <Container maxWidth="lg" sx={{ py: 4 }}>
+                        <Typography variant="body2" color="text.secondary"> {t("no_products_in_cart")} </Typography>
+                    </Container>
+                )}
                 <List>
                     {cartItems.map((item) => (
                         <ListItem key={item.id} divider sx={{ py: 1, px: 0 }}>
@@ -61,10 +68,11 @@ export default function Cart() {
                         </ListItem>
                     ))}
                 </List>
-                <div style={{ display: 'flex', position: 'fixed', bottom: 100, width: '50%', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-                    <Typography variant="h6" sx={{ mt: 2 }}>{t("total")}: {total}₺</Typography>
-                    <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={handlePurchase}>{t("purchase")}</Button>
-                    <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={handleClearCart}>{t("clear_cart")}</Button>
+                    <div style={{ boxShadow: '0 4px 12px rgba(36, 62, 54, 0.15)', borderRadius: '12px', border: '2px solid #7CA982', display: 'flex', position: 'fixed', bottom: 100, width: '50%', justifyContent: 'space-between', padding: '10px', alignItems: 'center',  }}>
+                    <Typography variant="h5" >{t("total")}: {total}₺</Typography>
+                    <Button variant="contained" color="primary"  onClick={handlePurchase}>{t("purchase")}</Button>
+                    <Button variant="contained" color="secondary"  onClick={handleClearCart}>{t("clear_cart")}</Button>
+                    <Button variant="contained" color="primary"  component={Link} to="/shop">{t("continue_shopping")}</Button>
                 </div>
             </Container>
         </>

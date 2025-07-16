@@ -6,7 +6,7 @@ import {Language, Store} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export default function Header() {
-    const { username, logout } = useAuth();
+    const { user, logout, isAuthenticated } = useAuth();
     const { t , i18n } = useTranslation();
     const navigate = useNavigate();
     
@@ -117,7 +117,7 @@ export default function Header() {
                         {t("orders")}
                     </Button>
 
-                    {username && (
+                    {isAuthenticated && (
                         <>
                             <Typography 
                                 sx={{ 
@@ -130,7 +130,7 @@ export default function Header() {
                                     fontWeight: 500
                                 }}
                             >
-                                {username}
+                                {user?.username}
                             </Typography>
                             <Button 
                                 color="inherit" 
@@ -148,7 +148,7 @@ export default function Header() {
                         </>
                     )}
                     
-                    {!username && (
+                    {!isAuthenticated && (
                         <Button 
                             color="inherit" 
                             component={Link} 
