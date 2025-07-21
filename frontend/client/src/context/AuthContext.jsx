@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
             const userData = await api.login(email, password);
             localStorage.setItem("user", JSON.stringify(userData));
             setUser(userData);
-            return { success: true };
+            return { success: true, user: userData };
         } catch (error) {
             console.error("Giriş işleminde hata:", error);
             return { 

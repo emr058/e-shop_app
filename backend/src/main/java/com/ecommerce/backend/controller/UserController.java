@@ -38,8 +38,7 @@ public class UserController {
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
             User savedUser = userService.register(user);
-            // Password'u response'tan çıkar (güvenlik için)
-            savedUser.setPassword(null);
+            savedUser.setPassword(null);  // Password'u response'tan çıkar (güvenlik için)
             return ResponseEntity.ok(savedUser);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest()

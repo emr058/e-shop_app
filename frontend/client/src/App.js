@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import { CartProvider } from "./context/CartContext";
 import { PurchaseProvider } from "./context/PurchaseContext";
+import AdminPanel from "./pages/AdminPanel";
 
 function App() {
   return(
@@ -27,6 +28,7 @@ function App() {
               <Header />
             <Routes>
               <Route path="/" element={<Login />} />
+              <Route path="/admin" element={<AdminPanel />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/orders" element={<Orders />} />

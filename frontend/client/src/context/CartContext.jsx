@@ -70,33 +70,50 @@ export function CartProvider({ children }) {
         });
     };
 
-    const removeFromCart = (productId) => {
+    const removeFromCart = async (productId) => {
         if (!isAuthenticated || !user?.id) {
             console.error('User not authenticated');
             return;
         }
 
-        setCartItems((prev) => prev.filter((item) => item.id !== productId));
-        // Backend'ten kaldırma işlemi burada implement edilebilir
-        // Şimdilik sadece frontend state'ini güncelliyoruz
+        try {
+            // Backend'ten kaldır
+            await api.removeFromCartByProductId(user.id, productId);
+            // Frontend state'ini güncelle
+            setCartItems((prev) => prev.filter((item) => item.id !== productId));
+        } catch (error) {
+            console.error('Error removing from cart on server:', error);
+            // Hata durumunda sadece frontend'i güncelle
+            setCartItems((prev) => prev.filter((item) => item.id !== productId));
+        }
     };
 
-    const changeQuantity = (productId, amount) => {
+    const changeQuantity = async (productId, amount) => {
         if (!isAuthenticated || !user?.id) {
             console.error('User not authenticated');
             return;
         }
 
-        setCartItems((prev) => prev.map((item) => {
-            if (item.id === productId) {
-                const newQuantity = item.quantity + amount;
-                if (newQuantity < 1) {
-                    return item; 
+        const currentItem = cartItems.find(item => item.id === productId);
+        if (!currentItem) return;
+
+        const newQuantity = currentItem.quantity + amount;
+        if (newQuantity < 1) return;
+
+        try {
+            // Backend'te quantity'yi güncelle
+            await api.updateQuantity(user.id, productId, newQuantity);
+            // Frontend state'ini güncelle
+            setCartItems((prev) => prev.map((item) => {
+                if (item.id === productId) {
+                    return { ...item, quantity: newQuantity };
                 }
-                return { ...item, quantity: newQuantity };
-            }
-            return item;
-        }));
+                return item;
+            }));
+        } catch (error) {
+            console.error('Error updating quantity on server:', error);
+            // Hata durumunda frontend'i geri al (eğer istenirse)
+        }
     };
 
     const clearCart = async () => {

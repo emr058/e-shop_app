@@ -15,7 +15,13 @@ export default function Header() {
     }
    
     return (
-        <AppBar position="static" elevation={2}>
+        <AppBar position="static" elevation={2} sx={{
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            borderBottomLeftRadius: 12,
+            borderBottomRightRadius: 12,
+            backgroundColor: '#243E36'
+        }}>
             <Toolbar sx={{ 
                 display: "flex", 
                 justifyContent: "space-between", 

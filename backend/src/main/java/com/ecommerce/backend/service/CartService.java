@@ -132,4 +132,37 @@ public void clearCartForUser(Long userId) {
         cartRepository.save(cart);
     }
 }
+
+public Cart updateQuantityForUser(Long userId, Long productId, int quantity) {
+    Cart cart = getCartByUserId(userId);
+    
+    if (cart.getItems() != null) {
+        CartItem existingItem = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+        
+        if (existingItem != null) {
+            if (quantity <= 0) {
+                cart.getItems().remove(existingItem);
+            } else {
+                existingItem.setQuantity(quantity);
+            }
+            return cartRepository.save(cart);
+        }
+    }
+    
+    throw new RuntimeException("Ürün sepette bulunamadı");
+}
+
+public Cart removeItemByProductId(Long userId, Long productId) {
+    Cart cart = getCartByUserId(userId);
+    
+    if (cart.getItems() != null) {
+        cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
+        return cartRepository.save(cart);
+    }
+    
+    return cart;
+}
 }

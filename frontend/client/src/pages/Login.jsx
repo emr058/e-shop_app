@@ -45,7 +45,12 @@ export default function Login() {
 
         const result = await login(email, password);
         if (result.success) {
-            navigate("/shop");
+            // Kullanıcı role'üne göre yönlendirme yap
+            if (result.user && result.user.role === "ADMIN") {
+                navigate("/admin");
+            } else {
+                navigate("/shop");
+            }
         } else {
             setError(result.error);
         }
@@ -168,7 +173,7 @@ export default function Login() {
                         <Box component="form" onSubmit={handleLoginSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <TextField
                                 fullWidth
-                                label="E-posta"
+                                label={t("email")}
                                 type="email"
                                 variant="outlined"
                                 value={email}
@@ -179,7 +184,7 @@ export default function Login() {
 
                             <TextField
                                 fullWidth
-                                label="Şifre"
+                                label={t("password")}
                                 type="password"
                                 variant="outlined"
                                 value={password}
@@ -211,7 +216,7 @@ export default function Login() {
                         <Box component="form" onSubmit={handleRegisterSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <TextField
                                 fullWidth
-                                label="E-posta *"
+                                label={t("email")}
                                 type="email"
                                 variant="outlined"
                                 value={email}
@@ -222,7 +227,7 @@ export default function Login() {
 
                             <TextField
                                 fullWidth
-                                label="Kullanıcı Adı *"
+                                label={t("username")}
                                 variant="outlined"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -231,7 +236,7 @@ export default function Login() {
 
                             <TextField
                                 fullWidth
-                                label="Şifre *"
+                                label={t("password")}
                                 type="password"
                                 variant="outlined"
                                 value={password}
@@ -241,7 +246,7 @@ export default function Login() {
 
                             <TextField
                                 fullWidth
-                                label="Telefon"
+                                label={t("phone")}
                                 variant="outlined"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
@@ -249,7 +254,7 @@ export default function Login() {
 
                             <TextField
                                 fullWidth
-                                label="Adres"
+                                label={t("address")}
                                 variant="outlined"
                                 value={address}
                                 onChange={(e) => setAddress(e.target.value)}
@@ -257,7 +262,7 @@ export default function Login() {
 
                             <TextField
                                 fullWidth
-                                label="Şehir"
+                                label={t("city")}
                                 variant="outlined"
                                 value={city}
                                 onChange={(e) => setCity(e.target.value)}
@@ -279,7 +284,7 @@ export default function Login() {
                                     }
                                 }}
                             >
-                                Kayıt Ol
+                                {t("register")}
                             </Button>
                         </Box>
                     )}

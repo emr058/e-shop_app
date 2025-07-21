@@ -26,7 +26,6 @@ export default function Cart() {
         await clearCart();
     };
 
-    
     return (
         <>
             {showSuccess && (

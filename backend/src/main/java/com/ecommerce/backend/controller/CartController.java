@@ -26,6 +26,23 @@ public Cart addToCart(
     return cartService.addToCartForUser(userId, productId, quantity);
 }
 
+@PutMapping("/{userId}/update")
+public Cart updateQuantity(
+        @PathVariable Long userId,
+        @RequestParam Long productId,
+        @RequestParam int quantity
+) {
+    return cartService.updateQuantityForUser(userId, productId, quantity);
+}
+
+@DeleteMapping("/{userId}/remove")
+public Cart removeItemByProductId(
+        @PathVariable Long userId, 
+        @RequestParam Long productId
+) {
+    return cartService.removeItemByProductId(userId, productId);
+}
+
 @DeleteMapping("/{cartId}/remove/{itemId}")
 public Cart removeItem(@PathVariable Long cartId, @PathVariable Long itemId) {
     return cartService.removeItem(cartId, itemId);

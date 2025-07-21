@@ -9,7 +9,8 @@ export const API_ENDPOINTS = {
     CART: `${API_BASE_URL}/cart`,
     FAVORITES: `${API_BASE_URL}/favorites`,
     ORDERS: `${API_BASE_URL}/orders`,
-    AUTH: `${API_BASE_URL}/auth`
+    AUTH: `${API_BASE_URL}/auth`,
+    ADMIN: `${API_BASE_URL}/admin`
 };
 
 // Axios instance with default config
@@ -43,6 +44,20 @@ export const api = {
     addToCart: async (userId, productId, quantity = 1) => {
         const response = await apiClient.post(`/cart/${userId}/add`, null, {
             params: { productId, quantity }
+        });
+        return response.data;
+    },
+    
+    updateQuantity: async (userId, productId, quantity) => {
+        const response = await apiClient.put(`/cart/${userId}/update`, null, {
+            params: { productId, quantity }
+        });
+        return response.data;
+    },
+    
+    removeFromCartByProductId: async (userId, productId) => {
+        const response = await apiClient.delete(`/cart/${userId}/remove`, {
+            params: { productId }
         });
         return response.data;
     },
@@ -110,5 +125,92 @@ export const api = {
     deleteOrder: async (orderId) => {
         const response = await apiClient.delete(`/orders/${orderId}`);
         return response.data;
+    },
+
+    // Admin
+    getAllProductsAdmin: async () => {
+        try {
+            const response = await apiClient.get('/admin/products');
+            return response.data;
+        } catch (error) {
+            console.error('Admin products fetch error:', error);
+            throw error;
+        }
+    },
+    createProductAdmin: async (product) => {
+        try {
+            const response = await apiClient.post('/admin/products', product);
+            return response.data;
+        } catch (error) {
+            console.error('Create product error:', error);
+            throw error;
+        }
+    },
+    updateProductAdmin: async (id, product) => {
+        try {
+            const response = await apiClient.put(`/admin/products/${id}`, product);
+            return response.data;
+        } catch (error) {
+            console.error('Update product error:', error);
+            throw error;
+        }
+    },
+    deleteProductAdmin: async (id) => {
+        try {
+            const response = await apiClient.delete(`/admin/products/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Delete product error:', error);
+            throw error;
+        }
+    },
+
+    // Users Admin
+    getAllUsersAdmin: async () => {
+        try {
+            const response = await apiClient.get('/admin/users');
+            return response.data;
+        } catch (error) {
+            console.error('Get users error:', error);
+            throw error;
+        }
+    },
+    deleteUserAdmin: async (id) => {
+        try {
+            const response = await apiClient.delete(`/admin/users/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Delete user error:', error);
+            throw error;
+        }
+    },
+    updateUserRoleAdmin: async (id, role) => {
+        try {
+            const response = await apiClient.put(`/admin/users/${id}/role`, { role });
+            return response.data;
+        } catch (error) {
+            console.error('Update user role error:', error);
+            throw error;
+        }
+    },
+
+    // Orders Admin
+    getAllOrdersAdmin: async () => {
+        try {
+            const response = await apiClient.get('/admin/orders');
+            return response.data;
+        } catch (error) {
+            console.error('Get orders error:', error);
+            throw error;
+        }
+    },
+    deleteOrderAdmin: async (id) => {
+        try {
+            const response = await apiClient.delete(`/admin/orders/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Delete order error:', error);
+            throw error;
+        }
     }
 }; 
