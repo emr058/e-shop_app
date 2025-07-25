@@ -49,7 +49,7 @@ export default function ProductCard({ product }) {
                 <CardMedia
                     component="img"
                     height="200"
-                    image={product.image}
+                    image={product.image || product.imageUrl || '/placeholder-image.jpg'}
                     alt={product.name}
                     sx={{ 
                         objectFit: 'cover',
@@ -122,7 +122,7 @@ export default function ProductCard({ product }) {
                             fontWeight: 500
                         }}
                     >
-                        {product.category}
+                        {product.category?.name || product.categoryName || 'Kategori'}
                     </Typography>
                 </Box>
             </CardContent>

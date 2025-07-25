@@ -2,6 +2,7 @@ package com.ecommerce.backend.service;
 
 import com.ecommerce.backend.Entity.Order;
 import com.ecommerce.backend.Entity.User;
+import com.ecommerce.backend.model.OrderStatus;
 import com.ecommerce.backend.repository.OrderRepository;
 import com.ecommerce.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,16 @@ public class OrderService {
 
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
+    }
+
+    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Sipariş bulunamadı"));
+        order.setStatus(newStatus);
+        return orderRepository.save(order);
+    }
+    
+    public List<Order> getOrdersForSeller(Long sellerId) {
+        return orderRepository.findAllBySellerId(sellerId);
     }
 } 

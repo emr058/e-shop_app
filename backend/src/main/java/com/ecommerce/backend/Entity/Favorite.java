@@ -1,6 +1,6 @@
 package com.ecommerce.backend.Entity;
 
-import com.ecommerce.backend.model.Product;
+import com.ecommerce.backend.Entity.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;

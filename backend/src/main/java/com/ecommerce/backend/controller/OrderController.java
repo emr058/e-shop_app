@@ -2,16 +2,22 @@ package com.ecommerce.backend.controller;
 
 import com.ecommerce.backend.Entity.Order;
 import com.ecommerce.backend.Entity.OrderItem;
+import com.ecommerce.backend.Entity.Product;
 import com.ecommerce.backend.service.OrderService;
 import com.ecommerce.backend.service.ProductService;
+import com.ecommerce.backend.model.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+
 
 @RestController
 @RequestMapping("/api/orders")
@@ -25,12 +31,19 @@ public class OrderController {
     public List<Order> getAllOrdersByUser(@PathVariable Long userId) {
         return orderService.getAllOrdersByUserId(userId);
     }
+    @GetMapping("/seller/{sellerId}")
+    public List<Order> getOrdersForSeller(@PathVariable Long sellerId){
+        return orderService.getOrdersForSeller(sellerId);
+    }
+
 
     @GetMapping("/{id}")
     public Order getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id);
     }
 
+    
+    
     @PostMapping("/user/{userId}")
     public Order createOrder(@PathVariable Long userId, @RequestBody Map<String, Object> orderRequest) {
         // Frontend'ten gelen veriyi parse et
@@ -67,11 +80,11 @@ public class OrderController {
             Number priceNum = (Number) itemData.get("price");
             Double price = priceNum.doubleValue();
             
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(savedOrder);
-            orderItem.setProduct(productService.getProductById(productId));
-            orderItem.setQuantity(quantity);
-            orderItem.setUnitPrice(price);
+            // Product'ı al
+            Product product = productService.getProductById(productId);
+            
+            // Constructor kullanarak OrderItem oluştur (snapshot bilgileri otomatik set edilir)
+            OrderItem orderItem = new OrderItem(savedOrder, product, quantity, price);
             
             return orderItem;
         }).collect(java.util.stream.Collectors.toList());
@@ -83,5 +96,17 @@ public class OrderController {
     @DeleteMapping("/{id}")
     public void deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
+    }
+
+    @PutMapping("/{orderId}/status")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long orderId, @RequestBody Map<String, String> statusRequest) {
+        try{
+            OrderStatus newStatus = OrderStatus.valueOf(statusRequest.get("status"));
+            Order updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
+            return ResponseEntity.ok(updatedOrder);
+        }catch(IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Geçersiz sipariş durumu");
+        }
     }
 } 

@@ -17,20 +17,13 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http 
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**")
-                .disable())
+            .csrf(csrf -> csrf.disable()) // CSRF'i tamamen kapat
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll() // Tüm endpoint'lere izin ver
             )
             .headers(headers -> headers
                 .frameOptions().disable()
-            )
-            .httpBasic(Customizer.withDefaults());
-
-            
+            );
 
         return http.build();
     }

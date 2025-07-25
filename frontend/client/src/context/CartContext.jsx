@@ -58,7 +58,11 @@ export function CartProvider({ children }) {
                         : item
                 );
             } else {
-                return [...prev, { ...product, quantity: 1 }];
+                return [...prev, { 
+                    ...product, 
+                    image: product.imageUrl, // imageUrl'ı image olarak map et
+                    quantity: 1 
+                }];
             }
         });
 

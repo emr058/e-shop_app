@@ -48,6 +48,8 @@ export default function Login() {
             // Kullanıcı role'üne göre yönlendirme yap
             if (result.user && result.user.role === "ADMIN") {
                 navigate("/admin");
+            } else if (result.user && result.user.role === "SELLER") {
+                navigate("/seller");
             } else {
                 navigate("/shop");
             }

@@ -2,7 +2,7 @@ package com.ecommerce.backend.service;
 
 import com.ecommerce.backend.Entity.Favorite;
 import com.ecommerce.backend.Entity.User;
-import com.ecommerce.backend.model.Product;
+import com.ecommerce.backend.Entity.Product;
 import com.ecommerce.backend.repository.FavoriteRepository;
 import com.ecommerce.backend.repository.UserRepository;
 import com.ecommerce.backend.repository.ProductRepository;

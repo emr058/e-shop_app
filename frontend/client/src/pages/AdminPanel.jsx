@@ -28,7 +28,7 @@ import {
     Select,
     MenuItem,
     FormControl,
-    InputLabel
+    
 } from "@mui/material";
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback } from "react";
@@ -42,9 +42,12 @@ import {
     Person, 
     ShoppingCart, 
     Inventory,
-    AdminPanelSettings
+    AdminPanelSettings,
+    Category
 } from "@mui/icons-material";
 import { api } from "../config/api";
+import AdminCategories from "../components/AdminCategories";
+import { useCategory } from "../context/CategoryContext";
 
 // Tab Panel Component
 function TabPanel({ children, value, index, ...other }) {
@@ -68,6 +71,7 @@ function TabPanel({ children, value, index, ...other }) {
 export default function AdminPanel() {
     const { t } = useTranslation();
     const { user } = useAuth();
+    const { categories } = useCategory();
     
     // Tab Management
     const [currentTab, setCurrentTab] = useState(0);
@@ -91,7 +95,8 @@ export default function AdminPanel() {
         name: '',
         description: '',
         price: '',
-        imageUrl: ''
+        imageUrl: '',
+        categoryId: ''
     });
     const [productFormErrors, setProductFormErrors] = useState({});
     const [productSubmitting, setProductSubmitting] = useState(false);
@@ -107,7 +112,7 @@ export default function AdminPanel() {
     const fetchProducts = useCallback(async () => {
         try {
             setProductsLoading(true);
-            const response = await api.getAllProducts();
+            const response = await api.getAllProductsAdmin();
             setProducts(response || []);
         } catch (error) {
             console.error('Ürünler yüklenirken hata:', error);
@@ -146,6 +151,10 @@ export default function AdminPanel() {
             errors.imageUrl = 'Resim URL\'si gereklidir';
         }
         
+        if (!productFormData.categoryId) {
+            errors.categoryId = 'Kategori seçimi gereklidir';
+        }
+        
         setProductFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -158,7 +167,8 @@ export default function AdminPanel() {
                 name: product.name || '',
                 description: product.description || '',
                 price: product.price ? product.price.toString() : '',
-                imageUrl: product.image || product.imageUrl || ''
+                imageUrl: product.image || product.imageUrl || '',
+                categoryId: product.categoryId || product.category?.id || ''
             });
         } else {
             setEditingProduct(null);
@@ -166,7 +176,8 @@ export default function AdminPanel() {
                 name: '',
                 description: '',
                 price: '',
-                imageUrl: ''
+                imageUrl: '',
+                categoryId: ''
             });
         }
         setOpenProductDialog(true);
@@ -179,7 +190,8 @@ export default function AdminPanel() {
             name: '',
             description: '',
             price: '',
-            imageUrl: ''
+            imageUrl: '',
+            categoryId: ''
         });
         setProductFormErrors({});
     };
@@ -210,7 +222,8 @@ export default function AdminPanel() {
                 name: productFormData.name,
                 description: productFormData.description,
                 price: parseFloat(productFormData.price),
-                image: productFormData.imageUrl
+                image: productFormData.imageUrl,
+                categoryId: parseInt(productFormData.categoryId)
             };
 
             if (editingProduct) {
@@ -373,6 +386,7 @@ export default function AdminPanel() {
             } else if (currentTab === 2) {
                 fetchOrders();
             }
+            // currentTab === 3 (Kategoriler) için AdminCategories kendi fetch işlemini yapacak
         }
     }, [user, currentTab, fetchProducts, fetchUsers, fetchOrders]);
 
@@ -437,6 +451,11 @@ export default function AdminPanel() {
                         icon={<ShoppingCart />} 
                         iconPosition="start"
                         label="Sipariş Yönetimi" 
+                    />
+                    <Tab 
+                        icon={<Category />} 
+                        iconPosition="start"
+                        label="Kategori Yönetimi" 
                     />
                 </Tabs>
             </Card>
@@ -599,6 +618,7 @@ export default function AdminPanel() {
                                                     >
                                                         <MenuItem value="USER">USER</MenuItem>
                                                         <MenuItem value="ADMIN">ADMIN</MenuItem>
+                                                        <MenuItem value="SELLER">SELLER</MenuItem>
                                                     </Select>
                                                 </FormControl>
                                             </TableCell>
@@ -688,6 +708,11 @@ export default function AdminPanel() {
                 )}
             </TabPanel>
 
+            {/* CATEGORIES TAB */}
+            <TabPanel value={currentTab} index={3}>
+                <AdminCategories />
+            </TabPanel>
+
             {/* Product Dialog */}
             <Dialog open={openProductDialog} onClose={handleCloseProductDialog} maxWidth="sm" fullWidth>
                 <DialogTitle>
@@ -734,6 +759,25 @@ export default function AdminPanel() {
                                 inputProps={{ min: 0, step: 0.01 }}
                                 required
                             />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormControl fullWidth required error={!!productFormErrors.categoryId}>
+                                <TextField
+                                    select
+                                    label="Kategori"
+                                    name="categoryId"
+                                    value={productFormData.categoryId}
+                                    onChange={handleProductInputChange}
+                                    error={!!productFormErrors.categoryId}
+                                    helperText={productFormErrors.categoryId || 'Ürün kategorisini seçiniz'}
+                                >
+                                    {categories.map((category) => (
+                                        <MenuItem key={category.id} value={category.id}>
+                                            {category.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </FormControl>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField

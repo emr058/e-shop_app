@@ -1,5 +1,6 @@
 package com.ecommerce.backend.Entity;
 
+import com.ecommerce.backend.model.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,11 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus status = OrderStatus.HAZIRLANIYOR;  
+
 
     // Constructor for creating new orders
     public Order(LocalDateTime orderDate, Double totalAmount) {

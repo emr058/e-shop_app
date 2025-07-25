@@ -88,16 +88,33 @@ export default function Orders() {
                             
                             <List dense>
                                 {Array.isArray(order.orderItems) && order.orderItems.map((item, index) => {
-                                    // Defensive check - item valid mi?
-                                    if (!item || !item.product) {
-                                        console.warn('Invalid order item:', item);
-                                        return null;
-                                    }
-
+                                    // Ürün snapshot bilgilerini al (silinmiş ürünler için)
+                                    const productName = item.productName || item.product?.name || 'Bilinmeyen Ürün';
+                                    const isProductDeleted = !item.product; // Ürün silinmiş mi?
+                                    
                                     return (
                                         <ListItem key={index} disablePadding>
                                             <ListItemText
-                                                primary={item.product.name || 'Ürün adı bilinmiyor'}
+                                                primary={
+                                                    <Box display="flex" alignItems="center" gap={1}>
+                                                        <span>{productName}</span>
+                                                        {isProductDeleted && (
+                                                            <Typography 
+                                                                variant="caption" 
+                                                                color="error"
+                                                                sx={{ 
+                                                                    fontStyle: 'italic',
+                                                                    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                                                                    px: 1,
+                                                                    py: 0.5,
+                                                                    borderRadius: 1
+                                                                }}
+                                                            >
+                                                                (Ürün artık mevcut değil)
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
+                                                }
                                                 secondary={`${item.quantity || 0} adet × ${(item.unitPrice || 0).toFixed(2)} TL`}
                                             />
                                         </ListItem>

@@ -6,7 +6,7 @@ import com.ecommerce.backend.Entity.User;
 import com.ecommerce.backend.repository.CartRepository;
 import com.ecommerce.backend.repository.ProductRepository;
 import com.ecommerce.backend.repository.UserRepository;
-import com.ecommerce.backend.model.Product;
+import com.ecommerce.backend.Entity.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
