@@ -56,6 +56,22 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
     
+    // CategoryId getter for JSON mapping
+    public Long getCategoryId() {
+        return category != null ? category.getId() : null;
+    }
+    
+    // CategoryId setter for JSON mapping
+    public void setCategoryId(Long categoryId) {
+        if (categoryId != null) {
+            Category categoryEntity = new Category();
+            categoryEntity.setId(categoryId);
+            this.category = categoryEntity;
+        } else {
+            this.category = null;
+        }
+    }
+    
     // JSON için image getter (backward compatibility)
     @JsonProperty("image")
     public String getImage() {

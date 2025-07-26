@@ -67,6 +67,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateUser = (updatedData) => {
+        try {
+            const updatedUser = { ...user, ...updatedData };
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            setUser(updatedUser);
+            return { success: true };
+        } catch (error) {
+            console.error("Kullanıcı güncelleme hatası:", error);
+            return { success: false, error: "Güncelleme işleminde bir hata oluştu." };
+        }
+    };
+
     return (
         <AuthContext.Provider 
             value={{ 
@@ -74,7 +86,8 @@ export const AuthProvider = ({ children }) => {
                 loading,
                 login, 
                 register, 
-                logout, 
+                logout,
+                updateUser,
                 isAuthenticated: !!user 
             }}
         >

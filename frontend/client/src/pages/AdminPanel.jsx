@@ -28,7 +28,7 @@ import {
     Select,
     MenuItem,
     FormControl,
-    
+    InputLabel
 } from "@mui/material";
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback } from "react";
@@ -71,7 +71,7 @@ function TabPanel({ children, value, index, ...other }) {
 export default function AdminPanel() {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const { categories } = useCategory();
+    const { categories, setCategories } = useCategory();
     
     // Tab Management
     const [currentTab, setCurrentTab] = useState(0);
@@ -107,6 +107,38 @@ export default function AdminPanel() {
         message: '',
         severity: 'success'
     });
+
+    // Debug: Kategorilerin yüklendiğini kontrol et
+    useEffect(() => {
+        console.log('Categories in AdminPanel:', categories);
+        if (categories.length === 0) {
+            console.warn('Categories array is empty! Checking if categories are loaded...');
+        }
+    }, [categories]);
+
+    // Kategorileri manuel yükle eğer boşsa
+    const loadCategories = useCallback(async () => {
+        if (categories.length === 0) {
+            try {
+                console.log('Loading categories manually...');
+                const response = await api.apiClient.get('/categories');
+                console.log('Categories loaded:', response.data);
+                setCategories(response.data || []);
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                setSnackbar({
+                    open: true,
+                    message: 'Kategoriler yüklenirken hata oluştu',
+                    severity: 'error'
+                });
+            }
+        }
+    }, [categories.length, setCategories]);
+
+    // Sayfa yüklendiğinde kategorileri kontrol et
+    useEffect(() => {
+        loadCategories();
+    }, [loadCategories]);
 
     // ========== PRODUCT MANAGEMENT ==========
     const fetchProducts = useCallback(async () => {
@@ -161,6 +193,12 @@ export default function AdminPanel() {
 
     const handleOpenProductDialog = (product = null) => {
         setProductFormErrors({});
+        
+        // Kategoriler yüklenmemişse önce yükle
+        if (categories.length === 0) {
+            loadCategories();
+        }
+        
         if (product) {
             setEditingProduct(product);
             setProductFormData({
@@ -225,6 +263,8 @@ export default function AdminPanel() {
                 image: productFormData.imageUrl,
                 categoryId: parseInt(productFormData.categoryId)
             };
+
+            console.log('Submitting product data:', productData); // Debug
 
             if (editingProduct) {
                 await api.updateProductAdmin(editingProduct.id, productData);
@@ -376,35 +416,13 @@ export default function AdminPanel() {
         }
     };
 
-    // ========== EFFECTS ==========
-    useEffect(() => {
-        if (user && user.role === "ADMIN") {
-            if (currentTab === 0) {
-                fetchProducts();
-            } else if (currentTab === 1) {
-                fetchUsers();
-            } else if (currentTab === 2) {
-                fetchOrders();
-            }
-            // currentTab === 3 (Kategoriler) için AdminCategories kendi fetch işlemini yapacak
-        }
-    }, [user, currentTab, fetchProducts, fetchUsers, fetchOrders]);
-
-    // Admin kontrolü
-    if (!user || user.role !== "ADMIN") {
-        return <Navigate to="/shop" />;
-    }
-
-    // ========== HANDLERS ==========
-    const handleTabChange = (event, newValue) => {
-        setCurrentTab(newValue);
-    };
-
+    // ========== MISC ==========
     const handleCloseSnackbar = () => {
         setSnackbar(prev => ({ ...prev, open: false }));
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return '-';
         return new Date(dateString).toLocaleDateString('tr-TR', {
             year: 'numeric',
             month: 'long',
@@ -414,54 +432,59 @@ export default function AdminPanel() {
         });
     };
 
+    // İlk yükleme - useEffect'i early return'den önce koy
+    useEffect(() => {
+        if (user && user.role === 'ADMIN') {
+            if (currentTab === 0) fetchProducts();
+            else if (currentTab === 1) fetchUsers();
+            else if (currentTab === 2) fetchOrders();
+        }
+    }, [user, currentTab, fetchProducts, fetchUsers, fetchOrders]);
+
+    // Admin kontrolü
+    if (!user || user.role !== 'ADMIN') {
+        return <Navigate to="/" replace />;
+    }
+
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}> 
-                    <AdminPanelSettings sx={{ fontSize: 45, color: '#243E36' }} />
-                    <Typography variant="h4" gutterBottom>
-                        {t("admin_panel") || "Admin Paneli"}
-                    </Typography>
-                </Box>
+        <Container maxWidth="xl" sx={{ py: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                <AdminPanelSettings sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+                <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                    Admin Paneli
+                </Typography>
             </Box>
 
-            {/* Tabs */}
-            <Card elevation={2} sx={{ mb: 3 }}>
-                <Tabs 
-                    value={currentTab} 
-                    onChange={handleTabChange}
-                    sx={{ 
-                        borderBottom: 1, 
-                        borderColor: 'divider',
-                        '& .MuiTab-root': { textTransform: 'none', fontWeight: 500 }
-                    }}
-                >
+            {/* Navigation Tabs */}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs value={currentTab} onChange={(e, newValue) => setCurrentTab(newValue)}>
                     <Tab 
+                        label="Ürünler" 
                         icon={<Inventory />} 
                         iconPosition="start"
-                        label="Ürün Yönetimi" 
+                        sx={{ minHeight: 48 }}
                     />
                     <Tab 
+                        label="Kullanıcılar" 
                         icon={<Person />} 
                         iconPosition="start"
-                        label="Kullanıcı Yönetimi" 
+                        sx={{ minHeight: 48 }}
                     />
                     <Tab 
+                        label="Siparişler" 
                         icon={<ShoppingCart />} 
                         iconPosition="start"
-                        label="Sipariş Yönetimi" 
+                        sx={{ minHeight: 48 }}
                     />
                     <Tab 
+                        label="Kategoriler" 
                         icon={<Category />} 
                         iconPosition="start"
-                        label="Kategori Yönetimi" 
+                        sx={{ minHeight: 48 }}
                     />
                 </Tabs>
-            </Card>
+            </Box>
 
-            {/* Tab Panels */}
-            
             {/* PRODUCTS TAB */}
             <TabPanel value={currentTab} index={0}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -486,9 +509,12 @@ export default function AdminPanel() {
                 ) : products.length === 0 ? (
                     <Card>
                         <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                            <ImageNotSupported sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
+                            <Inventory sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
                             <Typography variant="h6" color="textSecondary">
                                 Henüz ürün bulunmuyor
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                                İlk ürününüzü ekleyerek başlayın
                             </Typography>
                         </CardContent>
                     </Card>
@@ -499,10 +525,11 @@ export default function AdminPanel() {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>ID</TableCell>
-                                        <TableCell>Ürün Adı</TableCell>
-                                        <TableCell>Açıklama</TableCell>
-                                        <TableCell>Fiyat</TableCell>
                                         <TableCell>Resim</TableCell>
+                                        <TableCell>Ürün Adı</TableCell>
+                                        <TableCell>Kategori</TableCell>
+                                        <TableCell>Fiyat</TableCell>
+                                        <TableCell>Satıcı</TableCell>
                                         <TableCell align="center">İşlemler</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -510,55 +537,59 @@ export default function AdminPanel() {
                                     {products.map((product) => (
                                         <TableRow key={product.id}>
                                             <TableCell>{product.id}</TableCell>
-                                            <TableCell>{product.name}</TableCell>
-                                            <TableCell sx={{ maxWidth: 200 }}>
-                                                {product.description && product.description.length > 50 
-                                                    ? `${product.description.substring(0, 50)}...` 
-                                                    : (product.description || '')
-                                                }
-                                            </TableCell>
-                                            <TableCell>₺{product.price}</TableCell>
                                             <TableCell>
-                                                {(product.image || product.imageUrl) ? (
+                                                {product.image || product.imageUrl ? (
                                                     <img 
                                                         src={product.image || product.imageUrl} 
-                                                        alt={product.name || 'Ürün'}
-                                                        style={{ 
-                                                            width: 50, 
-                                                            height: 50, 
-                                                            objectFit: 'cover',
-                                                            borderRadius: 4
-                                                        }}
+                                                        alt={product.name}
+                                                        style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4 }}
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
                                                     />
                                                 ) : (
-                                                    <Box sx={{ 
-                                                        width: 50, 
-                                                        height: 50, 
-                                                        display: 'flex', 
-                                                        alignItems: 'center', 
-                                                        justifyContent: 'center',
-                                                        backgroundColor: 'grey.200',
-                                                        borderRadius: 1
-                                                    }}>
-                                                        <ImageNotSupported color="disabled" />
-                                                    </Box>
+                                                    <ImageNotSupported sx={{ fontSize: 50, color: 'grey.400' }} />
                                                 )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                    {product.name}
+                                                </Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {product.description?.length > 50 
+                                                        ? product.description.substring(0, 50) + '...' 
+                                                        : product.description}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip 
+                                                    label={product.category?.name || product.categoryName || 'Kategori Yok'}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color={product.category?.name ? 'primary' : 'default'}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                                                    ₺{product.price}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                {product.seller ? `${product.seller.username}` : 'Bilinmeyen'}
                                             </TableCell>
                                             <TableCell align="center">
                                                 <IconButton 
                                                     color="primary" 
                                                     onClick={() => handleOpenProductDialog(product)}
-                                                    title="Düzenle"
+                                                    title="Ürünü Düzenle"
+                                                    sx={{ mr: 1 }}
                                                 >
                                                     <Edit />
                                                 </IconButton>
                                                 <IconButton 
                                                     color="error" 
                                                     onClick={() => handleDeleteProduct(product.id)}
-                                                    title="Sil"
+                                                    title="Ürünü Sil"
                                                 >
                                                     <Delete />
                                                 </IconButton>
@@ -585,7 +616,7 @@ export default function AdminPanel() {
                         <CardContent sx={{ textAlign: 'center', py: 4 }}>
                             <Person sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
                             <Typography variant="h6" color="textSecondary">
-                                Kullanıcı bulunmuyor
+                                Henüz kullanıcı bulunmuyor
                             </Typography>
                         </CardContent>
                     </Card>
@@ -762,21 +793,35 @@ export default function AdminPanel() {
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth required error={!!productFormErrors.categoryId}>
-                                <TextField
-                                    select
+                                <InputLabel>Kategori</InputLabel>
+                                <Select
                                     label="Kategori"
                                     name="categoryId"
                                     value={productFormData.categoryId}
                                     onChange={handleProductInputChange}
-                                    error={!!productFormErrors.categoryId}
-                                    helperText={productFormErrors.categoryId || 'Ürün kategorisini seçiniz'}
                                 >
-                                    {categories.map((category) => (
-                                        <MenuItem key={category.id} value={category.id}>
-                                            {category.name}
+                                    {categories.length === 0 ? (
+                                        <MenuItem disabled value="">
+                                            <em>Kategoriler yükleniyor...</em>
                                         </MenuItem>
-                                    ))}
-                                </TextField>
+                                    ) : (
+                                        categories.map((category) => (
+                                            <MenuItem key={category.id} value={category.id}>
+                                                {category.name}
+                                            </MenuItem>
+                                        ))
+                                    )}
+                                </Select>
+                                {productFormErrors.categoryId && (
+                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                                        {productFormErrors.categoryId}
+                                    </Typography>
+                                )}
+                                {categories.length === 0 && (
+                                    <Typography variant="caption" color="warning.main" sx={{ mt: 0.5, ml: 1.75 }}>
+                                        Kategoriler yükleniyor... Lütfen bekleyin.
+                                    </Typography>
+                                )}
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
@@ -822,7 +867,7 @@ export default function AdminPanel() {
                     <Button 
                         onClick={handleProductSubmit} 
                         variant="contained"
-                        disabled={productSubmitting}
+                        disabled={productSubmitting || categories.length === 0}
                         sx={{ 
                             backgroundColor: '#243E36',
                             '&:hover': { backgroundColor: '#1a2d26' }

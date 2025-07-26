@@ -1,25 +1,87 @@
-import { AppBar, Toolbar, Typography, Button, Box, TextField, InputAdornment, FormControl, Select, MenuItem, Menu, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, useMediaQuery, useTheme } from "@mui/material";
-import { ShoppingCart, Search, Person, Language, Favorite, ShoppingBag, AdminPanelSettings, Store, Menu as MenuIcon, Close } from "@mui/icons-material";
+import React, { useState, useContext, useEffect, useRef } from "react";
+import { AppBar, Toolbar, Typography, Button, Box, TextField, InputAdornment, FormControl, Select, MenuItem, Menu, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, useMediaQuery, useTheme, Badge, Divider } from "@mui/material";
+import { ShoppingCart, Search, Person, Language, Favorite, ShoppingBag, AdminPanelSettings, Store, Menu as MenuIcon, Close, ExitToApp, Login, Assignment } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
 import { useCategory } from "../context/CategoryContext";
-import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
     const { user, logout, isAuthenticated } = useAuth();
-    const { t , i18n } = useTranslation();
+    const { cartItems } = useCart();
+    const { categories } = useCategory();
     const navigate = useNavigate();
     const location = useLocation();
-    const { categories } = useCategory();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md')); // 960px altı mobil
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const { t, i18n } = useTranslation();
+    
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [languageMenuAnchor, setLanguageMenuAnchor] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [searchTerm, setSearchTerm] = useState("");
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
     const searchInputRef = useRef(null);
+    
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    const getTotalItemCount = () => {
+        if (!cartItems || cartItems.length === 0) return 0;
+        return cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
+    };
+
+    const handleLogout = () => {
+        logout();
+        setMobileMenuOpen(false);
+        navigate('/login');
+    };
+
+    // Debug: Header'da kategorileri izle
+    useEffect(() => {
+        console.log('Header: Categories received:', categories);
+        console.log('Header: Categories length:', categories.length);
+        if (categories.length === 0) {
+            console.warn('Header: No categories available for search dropdown!');
+        }
+    }, [categories]);
+
+    // Arama inputu için focus yönetimi
+    useEffect(() => {
+        if (isSearchFocused && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [isSearchFocused]);
+
+    // Arama fonksiyonu
+    const handleSearch = () => {
+        if (searchTerm.trim()) {
+            navigate(`/shop?query=${encodeURIComponent(searchTerm.trim())}`);
+            setSearchTerm("");
+            setIsSearchFocused(false);
+        }
+    };
+
+    // Kategori değişikliği
+    const handleCategoryChange = (categoryId) => {
+        if (categoryId) {
+            navigate(`/shop?category=${categoryId}`);
+        } else {
+            navigate('/shop');
+        }
+    };
+
+    // Enter tuşu ile arama
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter' && isSearchFocused && searchTerm.trim()) {
+                handleSearch();
+            }
+        };
+
+        document.addEventListener('keypress', handleKeyPress);
+        return () => document.removeEventListener('keypress', handleKeyPress);
+    }, [searchTerm, isSearchFocused]);
 
     // Container'a tıklayınca arama kutusuna odaklan
     const handleContainerClick = (e) => {
@@ -62,6 +124,7 @@ export default function Header() {
             const categoryParam = selectedCategory;
             
             if (searchQuery || categoryParam) {
+                // Query string kullan - daha temiz URL
                 const params = new URLSearchParams();
                 if (searchQuery) params.append('query', searchQuery);
                 if (categoryParam) params.append('category', categoryParam);
@@ -148,15 +211,15 @@ export default function Header() {
                                     flexGrow: 1,
                                     maxWidth: isSearchFocused ? 700 : 500,
                                     mx: 3,
-                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    transform: isSearchFocused ? 'scale(1.02)' : 'scale(1)',
-                                    boxShadow: isSearchFocused ? '0 8px 32px rgba(194, 168, 62, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', // Smooth animasyon
+                                    transform: isSearchFocused ? 'scale(1.02)' : 'scale(1)', // Hafif büyütme
+                                    boxShadow: isSearchFocused ? '0 8px 32px rgba(194, 168, 62, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)', // Glow efekti
                                     '&:hover': {
                                         backgroundColor: 'rgba(255, 255, 255, 0.15)',
                                         transform: isSearchFocused ? 'scale(1.02)' : 'scale(1.01)',
                                         boxShadow: isSearchFocused ? '0 8px 32px rgba(194, 168, 62, 0.3)' : '0 4px 16px rgba(194, 168, 62, 0.15)',
                                     },
-                                    cursor: 'text',
+                                    cursor: 'text', // Tıklanabilir olduğunu göster
                                 }}
                             >
                                 <TextField
@@ -239,11 +302,17 @@ export default function Header() {
                                         }}
                                     >
                                         <MenuItem value="">{t("all_categories")}</MenuItem>
-                                        {categories.map(category => (
-                                            <MenuItem key={category.id} value={category.id}>
-                                                {category.name}
+                                        {categories.length === 0 ? (
+                                            <MenuItem disabled>
+                                                <em style={{ color: 'red' }}>Kategoriler yüklenemedi</em>
                                             </MenuItem>
-                                        ))}
+                                        ) : (
+                                            categories.map(category => (
+                                                <MenuItem key={category.id} value={category.id}>
+                                                    {category.name}
+                                                </MenuItem>
+                                            ))
+                                        )}
                                     </Select>
                                 </FormControl>
                             </Box>
@@ -282,7 +351,7 @@ export default function Header() {
                                 >
                                     <Favorite />
                                 </IconButton>
-
+                                
                                 <IconButton 
                                     color="inherit" 
                                     component={Link} 
@@ -297,12 +366,25 @@ export default function Header() {
                                     <ShoppingBag />
                                 </IconButton>
 
+                                <IconButton 
+                                    color="inherit" 
+                                    component={Link} 
+                                    to="/profile"
+                                    sx={{ 
+                                        borderRadius: 2,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        }
+                                    }}
+                                >
+                                    <Person />
+                                </IconButton>
+
                                 {user?.role === 'SELLER' && (
                                     <Button 
                                         color="inherit" 
                                         component={Link} 
                                         to="/seller"
-                                        startIcon={<Store />}
                                         sx={{ 
                                             borderRadius: 2,
                                             px: 2,
@@ -321,7 +403,6 @@ export default function Header() {
                                         color="inherit" 
                                         component={Link} 
                                         to="/admin"
-                                        startIcon={<AdminPanelSettings />}
                                         sx={{ 
                                             borderRadius: 2,
                                             px: 2,
@@ -383,24 +464,14 @@ export default function Header() {
                                     </Button>
                                 )}
                                 
-                                <Button 
-                                    color="inherit" 
-                                    startIcon={<Language />}
-                                    onClick={() => changeLanguage(i18n.language === 'tr' ? 'en' : 'tr')}
-                                    sx={{ 
-                                        minWidth: 'auto', 
-                                        textTransform: 'none',
-                                        borderRadius: 2,
-                                        px: 1.5,
-                                        ml: 1,
-                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                        }
-                                    }}
+                                <IconButton
+                                    color="inherit"
+                                    onClick={() => i18n.changeLanguage(i18n.language === 'tr' ? 'en' : 'tr')}
+                                    sx={{ mr: 1 }}
+                                    title={i18n.language === 'tr' ? 'Switch to English' : 'Türkçe\'ye geç'}
                                 >
-                                    {i18n.language === 'tr' ? 'EN' : 'TR'}
-                                </Button>
+                                    <Language />
+                                </IconButton>
                             </Box>
                         </>
                     )}
@@ -453,6 +524,7 @@ export default function Header() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         inputRef={searchInputRef}
                         sx={{
+                            mb: 2,
                             '& .MuiOutlinedInput-root': {
                                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                 borderRadius: 2,
@@ -462,35 +534,41 @@ export default function Header() {
                             }
                         }}
                         InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <Search sx={{ color: 'text.secondary' }} />
-                                </InputAdornment>
-                            ),
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <FormControl size="small" sx={{ minWidth: 100 }}>
-                                        <Select
-                                            value={selectedCategory}
-                                            onChange={(e) => setSelectedCategory(e.target.value)}
-                                            displayEmpty
-                                            sx={{
-                                                '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                                '& .MuiSelect-select': { fontSize: '0.875rem' }
-                                            }}
-                                        >
-                                            <MenuItem value="">{t("all_categories")}</MenuItem>
-                                            {categories.map(category => (
-                                                <MenuItem key={category.id} value={category.id}>
-                                                    {category.name}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Search sx={{ color: 'text.secondary' }} />
+                                    </InputAdornment>
+                                ),
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <FormControl size="small" sx={{ minWidth: 100 }}>
+                                            <Select
+                                                value={selectedCategory}
+                                                onChange={(e) => handleCategoryChange(e.target.value)}
+                                                displayEmpty
+                                                sx={{
+                                                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                                    '& .MuiSelect-select': { fontSize: '0.875rem' }
+                                                }}
+                                            >
+                                                <MenuItem value="">{t("all_categories")}</MenuItem>
+                                                {categories.length === 0 ? (
+                                                    <MenuItem disabled>
+                                                        <em style={{ color: 'red', fontSize: '0.8rem' }}>Kategoriler yok</em>
+                                                    </MenuItem>
+                                                ) : (
+                                                    categories.map(category => (
+                                                        <MenuItem key={category.id} value={category.id}>
+                                                            {category.name}
+                                                        </MenuItem>
+                                                    ))
+                                                )}
+                                            </Select>
+                                        </FormControl>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
                 </Box>
             )}
 
@@ -526,160 +604,56 @@ export default function Header() {
                 </Box>
 
                 <List sx={{ pt: 0 }}>
-                    <ListItem 
-                        component={Link} 
-                        to="/cart"
-                        onClick={() => setMobileMenuOpen(false)}
-                        sx={{ 
-                            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                            borderRadius: 1,
-                            mx: 1
-                        }}
-                    >
-                        <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                            <ShoppingCart />
+                    <ListItem button onClick={() => { navigate('/shop'); setMobileMenuOpen(false); }}>
+                        <ListItemIcon><Store /></ListItemIcon>
+                        <ListItemText primary={t("products")} />
+                    </ListItem>
+
+                    <ListItem button onClick={() => { navigate('/profile'); setMobileMenuOpen(false); }}>
+                        <ListItemIcon><Person /></ListItemIcon>
+                        <ListItemText primary={t("profile")} />
+                    </ListItem>
+
+                    <ListItem button onClick={() => { navigate('/favorites'); setMobileMenuOpen(false); }}>
+                        <ListItemIcon><Favorite /></ListItemIcon>
+                        <ListItemText primary={t("favorites")} />
+                    </ListItem>
+
+                    <ListItem button onClick={() => { navigate('/cart'); setMobileMenuOpen(false); }}>
+                        <ListItemIcon>
+                            <Badge badgeContent={getTotalItemCount()} color="error">
+                                <ShoppingCart />
+                            </Badge>
                         </ListItemIcon>
                         <ListItemText primary={t("cart")} />
                     </ListItem>
 
-                    <ListItem 
-                        component={Link} 
-                        to="/favorites"
-                        onClick={() => setMobileMenuOpen(false)}
-                        sx={{ 
-                            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                            borderRadius: 1,
-                            mx: 1
-                        }}
-                    >
-                        <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                            <Favorite />
-                        </ListItemIcon>
-                        <ListItemText primary={t("favorites")} />
-                    </ListItem>
-
-                    <ListItem 
-                        component={Link} 
-                        to="/orders"
-                        onClick={() => setMobileMenuOpen(false)}
-                        sx={{ 
-                            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                            borderRadius: 1,
-                            mx: 1
-                        }}
-                    >
-                        <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                            <ShoppingBag />
-                        </ListItemIcon>
+                    <ListItem button onClick={() => { navigate('/orders'); setMobileMenuOpen(false); }}>
+                        <ListItemIcon><Assignment /></ListItemIcon>
                         <ListItemText primary={t("orders")} />
                     </ListItem>
 
-                    {user?.role === 'SELLER' && (
-                        <ListItem 
-                            component={Link} 
-                            to="/seller"
-                            onClick={() => setMobileMenuOpen(false)}
-                            sx={{ 
-                                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                                borderRadius: 1,
-                                mx: 1
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                                <Store />
-                            </ListItemIcon>
-                            <ListItemText primary="Satıcı Paneli" />
+                    <Divider />
+
+                    <ListItem button onClick={() => { 
+                        i18n.changeLanguage(i18n.language === 'tr' ? 'en' : 'tr'); 
+                        setMobileMenuOpen(false); 
+                    }}>
+                        <ListItemIcon><Language /></ListItemIcon>
+                        <ListItemText primary={i18n.language === 'tr' ? 'English' : 'Türkçe'} />
+                    </ListItem>
+
+                    {user ? (
+                        <ListItem button onClick={handleLogout}>
+                            <ListItemIcon><ExitToApp /></ListItemIcon>
+                            <ListItemText primary={t("logout")} />
                         </ListItem>
-                    )}
-
-                    {user?.role === 'ADMIN' && (
-                        <ListItem 
-                            component={Link} 
-                            to="/admin"
-                            onClick={() => setMobileMenuOpen(false)}
-                            sx={{ 
-                                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                                borderRadius: 1,
-                                mx: 1
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                                <AdminPanelSettings />
-                            </ListItemIcon>
-                            <ListItemText primary="Admin Paneli" />
-                        </ListItem>
-                    )}
-
-                    {isAuthenticated && (
-                        <>
-                            <Box sx={{ 
-                                px: 2, 
-                                py: 1,
-                                mt: 2,
-                                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
-                            }}>
-                                <Typography variant="body2" sx={{ 
-                                    color: '#C2A83E',
-                                    fontWeight: 500
-                                }}>
-                                    {user?.username}
-                                </Typography>
-                            </Box>
-                            <ListItem 
-                                onClick={() => {
-                                    logout();
-                                    setMobileMenuOpen(false);
-                                }}
-                                sx={{ 
-                                    '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                                    borderRadius: 1,
-                                    mx: 1,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                                    <Person />
-                                </ListItemIcon>
-                                <ListItemText primary={t("logout")} />
-                            </ListItem>
-                        </>
-                    )}
-
-                    {!isAuthenticated && (
-                        <ListItem 
-                            component={Link} 
-                            to="/"
-                            onClick={() => setMobileMenuOpen(false)}
-                            sx={{ 
-                                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                                borderRadius: 1,
-                                mx: 1
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                                <Person />
-                            </ListItemIcon>
+                    ) : (
+                        <ListItem button onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}>
+                            <ListItemIcon><Login /></ListItemIcon>
                             <ListItemText primary={t("login")} />
                         </ListItem>
                     )}
-
-                    <ListItem 
-                        onClick={() => {
-                            changeLanguage(i18n.language === 'tr' ? 'en' : 'tr');
-                            setMobileMenuOpen(false);
-                        }}
-                        sx={{ 
-                            '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
-                            borderRadius: 1,
-                            mx: 1,
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <ListItemIcon sx={{ color: '#C2A83E', minWidth: 40 }}>
-                            <Language />
-                        </ListItemIcon>
-                        <ListItemText primary={i18n.language === 'tr' ? 'English' : 'Türkçe'} />
-                    </ListItem>
                 </List>
             </Drawer>
         </>

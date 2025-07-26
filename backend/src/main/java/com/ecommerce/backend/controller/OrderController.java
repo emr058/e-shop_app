@@ -8,7 +8,6 @@ import com.ecommerce.backend.service.ProductService;
 import com.ecommerce.backend.model.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -99,7 +98,6 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/status")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
     public ResponseEntity<?> updateOrderStatus(@PathVariable Long orderId, @RequestBody Map<String, String> statusRequest) {
         try{
             OrderStatus newStatus = OrderStatus.valueOf(statusRequest.get("status"));

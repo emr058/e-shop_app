@@ -38,3 +38,509 @@
     transform: rotate(360deg);
   }
 }
+
+/* ===== SELLER PANEL CLEAN STYLES ===== */
+
+.seller-panel {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 140px);
+}
+
+.seller-panel-header {
+    background: linear-gradient(135deg, #243E36 0%, #5a7d61 100%);
+    color: white;
+    padding: 32px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(36, 62, 54, 0.1);
+}
+
+.seller-panel-header h1 {
+    margin: 0 0 16px 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.seller-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.seller-tabs button {
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.seller-tabs button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.seller-tabs button.active {
+    background: rgba(194, 168, 62, 0.9);
+    border-color: #C2A83E;
+}
+
+/* Sections */
+.products-section,
+.orders-section {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e9ecef;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f1f3f4;
+}
+
+.section-header h2 {
+    margin: 0;
+    color: #343a40;
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.add-btn {
+    background: #C2A83E;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background 0.2s ease;
+}
+
+.add-btn:hover {
+    background: #a08632;
+}
+
+/* Ürün Ekleme Formu */
+.add-product-form {
+    background: #f8f9fa;
+    padding: 28px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+    border: 1px solid #e9ecef;
+}
+
+.add-product-form h3 {
+    margin: 0 0 20px 0;
+    color: #343a40;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+    background: white;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #C2A83E;
+    box-shadow: 0 0 0 3px rgba(194, 168, 62, 0.1);
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.submit-btn {
+    background: #243E36;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+}
+
+.submit-btn:hover {
+    background: #1a2d26;
+}
+
+/* Image Upload Section */
+.image-upload-section {
+    border: 2px dashed #C2A83E;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background: rgba(194, 168, 62, 0.02);
+    margin-top: 16px;
+}
+
+.image-upload-section h4 {
+    margin: 0 0 16px 0;
+    color: #343a40;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.image-preview {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 0 auto;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ürün Grid */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: #C2A83E;
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 20px;
+}
+
+.product-info h3 {
+    margin: 0 0 8px 0;
+    color: #343a40;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.product-info p {
+    color: #6c757d;
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+.product-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #C2A83E;
+    margin-bottom: 16px;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+}
+
+/* Siparişler */
+.orders-section h2 {
+    margin: 0 0 28px 0;
+    color: #343a40;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f1f3f4;
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.order-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    transition: box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.order-header h3 {
+    margin: 0;
+    color: #343a40;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.status {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.status.hazirlaniyor {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status.kargoda {
+    background: #cce5ff;
+    color: #0056b3;
+}
+
+.status.teslim_edildi {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status.iptal_edildi {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.order-details p {
+    margin: 8px 0;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.order-items {
+    margin: 16px 0;
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.order-items h4 {
+    margin: 0 0 12px 0;
+    color: #343a40;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-actions {
+    margin-top: 16px;
+}
+
+.order-actions label {
+    margin-right: 8px;
+    font-weight: 500;
+    color: #495057;
+}
+
+.order-actions select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #495057;
+    cursor: pointer;
+    background: white;
+}
+
+.order-actions select:focus {
+    outline: none;
+    border-color: #C2A83E;
+    box-shadow: 0 0 0 3px rgba(194, 168, 62, 0.1);
+}
+
+/* Debug Info - Only for development */
+.debug-info {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    padding: 12px;
+    margin: 16px 0;
+    border-radius: 8px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.8rem;
+    color: #1565c0;
+    display: none; /* Hidden by default */
+}
+
+.debug-info.show {
+    display: block;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    color: #dee2e6;
+}
+
+.empty-state h3 {
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+    .seller-panel {
+        padding: 16px;
+    }
+    
+    .seller-panel-header {
+        padding: 24px 20px;
+        margin-bottom: 24px;
+    }
+    
+    .seller-panel-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .seller-tabs {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .products-section,
+    .orders-section {
+        padding: 20px 16px;
+    }
+    
+    .add-product-form {
+        padding: 20px 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .seller-panel-header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .seller-tabs button {
+        font-size: 0.9rem;
+        padding: 10px 16px;
+    }
+}

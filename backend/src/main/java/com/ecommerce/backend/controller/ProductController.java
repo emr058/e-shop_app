@@ -5,12 +5,12 @@ import com.ecommerce.backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/products")
@@ -23,14 +23,32 @@ public class ProductController {
         return productService.getAllProducts();
     }
     
+    @GetMapping("/{id}")
+    public Product getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
+    }
+    
     @PostMapping
-    @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         return productService.saveProduct(product);
     }
     
+    @PostMapping("/bulk-upload")
+    public ResponseEntity<Map<String, Object>> bulkUploadProducts(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("sellerId") Long sellerId) {
+        try {
+            Map<String, Object> result = productService.bulkUploadFromCSV(file, sellerId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Dosya yüklenirken hata oluştu: " + e.getMessage()
+            ));
+        }
+    }
+    
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         return productService.deleteProduct(id);
     }
@@ -39,6 +57,7 @@ public class ProductController {
     public List<Product> getProductsForSeller(@PathVariable Long sellerId) {
         return productService.getProductsForSeller(sellerId);
     }
+    
     @GetMapping("/search")
     public List<Product> searchProducts(
         @RequestParam(required = false) String query,
@@ -54,5 +73,4 @@ public class ProductController {
             return productService.getAllProducts();
         }
     }
-    
 }

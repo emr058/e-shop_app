@@ -16,11 +16,11 @@ import {
     useMediaQuery
 } from "@mui/material";
 import { useTranslation } from 'react-i18next';
-import { Add, Remove, Delete, ShoppingCart, CreditCard, ShoppingBag } from "@mui/icons-material";
+import { Add, Remove, Delete, ShoppingCart, CreditCard, ShoppingBag, ShoppingCartOutlined } from "@mui/icons-material";
 import { useCart } from '../context/CartContext';
 import { usePurchase } from '../context/PurchaseContext';
 import { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Cart() {
     const { t } = useTranslation();
@@ -29,6 +29,7 @@ export default function Cart() {
     const { cartItems, removeFromCart, changeQuantity, clearCart, total } = useCart();
     const { addOrder } = usePurchase();
     const [showSuccess, setShowSuccess] = useState(false);
+    const navigate = useNavigate();
 
     const handlePurchase = async () => {
         if (cartItems.length === 0) return; 
@@ -42,6 +43,10 @@ export default function Cart() {
 
     const handleClearCart = async () => {
         await clearCart();
+    };
+
+    const getTotalItemCount = () => {
+        return cartItems.reduce((sum, item) => sum + item.quantity, 0);
     };
 
     return (
@@ -64,20 +69,8 @@ export default function Cart() {
             )}
             
             <Container maxWidth="lg" sx={{ py: 4, pb: { xs: 20, md: 4 } }}>
-                <Typography 
-                    variant={isMobile ? "h5" : "h4"} 
-                    gutterBottom 
-                    sx={{ 
-                        mb: 4, 
-                        color: '#243E36',
-                        fontWeight: 700,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2
-                    }}
-                >
-                    <ShoppingCart sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, color: '#C2A83E' }} />
-                    {t("cart")}
+                <Typography variant="h4" gutterBottom sx={{ color: '#243E36', fontWeight: 600 }}>
+                    {t("cart")} ({getTotalItemCount()} {t("products")})
                 </Typography>
 
                 {cartItems.length === 0 ? (
@@ -85,27 +78,32 @@ export default function Cart() {
                         sx={{ 
                             textAlign: 'center', 
                             py: 8,
-                            color: 'text.secondary'
+                            backgroundColor: '#f8f9fa',
+                            borderRadius: 3,
+                            border: '2px dashed #e0e0e0'
                         }}
                     >
-                        <ShoppingCart sx={{ fontSize: '4rem', color: '#C2A83E', mb: 2, opacity: 0.5 }} />
-                        <Typography variant="h6" gutterBottom>
-                            {t("no_products_in_cart")}
+                        <ShoppingCartOutlined sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
+                        <Typography variant="h5" color="text.secondary" gutterBottom>
+                            {t("empty_cart_title")}
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" mb={3}>
+                            {t("empty_cart_description")}
                         </Typography>
                         <Button 
                             variant="contained" 
-                            component={Link} 
-                            to="/shop"
-                            sx={{
-                                mt: 2,
-                                backgroundColor: '#C2A83E',
-                                '&:hover': {
-                                    backgroundColor: '#a08632'
-                                }
+                            onClick={() => navigate('/shop')}
+                            sx={{ 
+                                background: 'linear-gradient(45deg, #243E36 30%, #C2A83E 90%)',
+                                px: 4,
+                                py: 1.5
                             }}
                         >
                             {t("continue_shopping")}
                         </Button>
+                        <Typography variant="body2" color="text.secondary" mt={2}>
+                            {t("cart_tip")}
+                        </Typography>
                     </Box>
                 ) : (
                     <>

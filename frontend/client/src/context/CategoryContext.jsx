@@ -17,7 +17,7 @@ export const CategoryProvider = ({ children }) => {
                 const res = await apiClient.get('/categories');
                 setCategories(res.data || []);
             } catch (error) {
-                console.error('Kategoriler yüklenirken hata:', error);
+                console.error('Error fetching categories:', error);
                 setCategories([]);
             }
         };

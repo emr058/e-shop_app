@@ -11,6 +11,8 @@ import Shop from "./pages/Shop";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Favorites from "./pages/Favorites";
+import Profile from "./pages/Profile";
+import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -43,9 +45,11 @@ function App() {
                       <Route path="/admin" element={<AdminPanel />} />
                       <Route path="/seller" element={<SellerPanel />} />
                       <Route path="/shop" element={<Shop />} />
+                      <Route path="/product/:id" element={<ProductDetail />} />
                       <Route path="/cart" element={<Cart />} />
                       <Route path="/orders" element={<Orders />} />
                       <Route path="/favorites" element={<Favorites />} />
+                      <Route path="/profile" element={<Profile />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Box>
